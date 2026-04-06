@@ -1,3 +1,4 @@
 docker://argrosso/bismark:0.19.1
 docker://parvsachdeva/macs3:latest
 docker://gglyptodon/helixer-docker:helixer_v0.3.3_cuda_11.8.0-cudnn8
+docker://hdsu/pipe-chip_epic2
