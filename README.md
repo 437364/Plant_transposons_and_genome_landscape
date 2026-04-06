@@ -42,6 +42,7 @@ The central question is whether holocentric chromosomes — which lack localized
 │
 └── envs/                           # Conda environment specs and container references
     ├── *.yml                       # Conda environment exports
+    ├── r_package_versions.csv      # R environment for GLMM analysis
     └── docker_urls                 # Docker container sources for Singularity
 ```
 
