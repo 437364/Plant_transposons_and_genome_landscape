@@ -1,0 +1,7 @@
+name: pygenometracks
+channels:
+  - bioconda
+  - defaults
+  - https://s3.cl5.du.cesnet.cz/f463c41e_8ad6_4e8e_a0ad_4b3370c11a04:conda-forge-s3chnl
+  - https://s3.cl5.du.cesnet.cz/f463c41e_8ad6_4e8e_a0ad_4b3370c11a04:bioconda-s3chnl
+prefix: /storage/brno12-cerit/home/kratka/.conda/envs/pygenometracks

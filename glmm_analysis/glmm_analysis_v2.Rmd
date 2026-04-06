@@ -1,0 +1,897 @@
+---
+title: "LTR-TE Dynamics — GLMM Analysis with TE Family Effects"
+author: "Marie Kratka"
+date: "`r Sys.Date()`"
+output: github_document
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo    = TRUE,
+  warning = TRUE,
+  message = TRUE,
+  fig.width  = 8,
+  fig.height = 5
+)
+```
+
+# Libraries
+
+```{r libraries, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(data.table)
+library(glmmTMB)
+library(broom.mixed)
+library(DHARMa)
+library(knitr)
+library(here)
+library(patchwork)
+library(svglite)
+library(emmeans)
+```
+
+------------------------------------------------------------------------
+
+# Load and prepare data
+
+The mega-table has one row per LTR-TE element (intact, partial, or
+solo_LTR), with element-level, window-level, chromosome-level, and
+species-level metadata.
+
+```{r load-data}
+df_raw <- read_tsv(here("data", "df_for_linear_models.tsv"), show_col_types = FALSE)
+```
+
+```{r prepare-factors}
+df_raw <- df_raw %>%
+  mutate(
+    # monocentric as reference level
+    arch = factor(Centromere_architecture,
+                  levels = c("monocentric", "holocentric")),
+    Family       = factor(Family),
+    Ordo         = factor(Ordo),
+    Clade        = factor(Clade),
+    Genus        = factor(Genus),
+    Species      = factor(Species),
+    Class        = factor(Class),
+    element_type = factor(element_type, levels = c("intact", "partial", "solo_LTR")),
+    # Log chromosome size
+    log_chr_length = log10(chr_length / 1e6)
+  )
+```
+
+```{r extract-te-family}
+# TE family name (e.g. "Angela", "Athila", "CRM", "Tekay") from DANTE Class string
+# Class column typically looks like: "Ty1/copia|Angela" or "Ty3/gypsy|chromovirus|Tekay|CRM"
+# Adjust parsing to match your actual Class format
+
+df_raw <- df_raw %>%
+  mutate(
+    # Extract the last element after the last "|" — this is typically the family name
+    TE_family = str_extract(Class, "[^|]+$"),
+    TE_family = factor(TE_family),
+    # Superfamily: Ty1-copia vs Ty3-gypsy
+    superfamily = case_when(
+      grepl("Ty1/copia", Class, ignore.case = TRUE) ~ "Ty1-copia",
+      grepl("Ty3/gypsy", Class, ignore.case = TRUE) ~ "Ty3-gypsy",
+      TRUE ~ "other"
+    ),
+    superfamily = factor(superfamily)
+  )
+
+# Verify parsing
+cat("TE family levels:\n")
+print(sort(table(df_raw$TE_family), decreasing = TRUE))
+
+cat("\nSuperfamily levels:\n")
+print(table(df_raw$superfamily))
+```
+
+## Sensitivity filter
+
+```{r sensitivity-filter}
+sensitivity_exclude <- c(
+  "Hordeum_vulgare",
+  "Secale_cereale",
+  "Triticum_aestivum",
+  "Triticum_monococcum",
+  "Rhynchospora_pubera"
+)
+
+df_full      <- df_raw
+df_sensitive <- df_raw %>% filter(!Species %in% sensitivity_exclude)
+
+cat("Full dataset:       ", n_distinct(df_full$Species),      "species\n")
+cat("Sensitivity subset: ", n_distinct(df_sensitive$Species), "species\n")
+```
+
+# load family palette
+```{r family_palette}
+family_palette <- c(
+  "Convolvulaceae" = "#f3b674",
+  "Poaceae"        = "#a6f3a6",
+  "Juncaceae"      = "#ff41c8",
+  "Cyperaceae"     = "#916f6f",
+  "Melanthiaceae"  = "#37abc8"
+)
+```
+
+------------------------------------------------------------------------
+
+# Aggregate to chromosome level
+
+Used for hypotheses tested at chromosome level (H1–H4).
+
+```{r aggregate-chromosome}
+aggregate_chrom <- function(df) {
+  df %>%
+    group_by(Species, chr, chr_length, arch,
+             Family, Ordo, Clade, Genus) %>%
+    summarise(
+      n_intact  = sum(element_type == "intact"),
+      n_partial = sum(element_type == "partial"),
+      n_solo    = sum(element_type == "solo_LTR"),
+      n_total   = n(),
+
+      solo_ratio = n_solo / (n_intact + n_solo),
+
+      mean_LTR_identity = mean(LTR_identity[element_type == "intact"], na.rm = TRUE) / 100,
+
+      TE_density = sum(end - start) / first(chr_length),
+      crm_prop = sum(grepl("CRM", Class, ignore.case = TRUE)) / n_total,
+      gypsy_prop = sum(grepl("Ty3-gypsy", superfamily, ignore.case = TRUE)) / n_total,
+
+      .groups = "drop"
+    ) %>%
+    mutate(
+      log_chr_length = log10(chr_length / 1e6),
+      log_chr_length_c = log_chr_length - mean(log_chr_length, na.rm = TRUE),
+
+      # Smithson & Verkuilen (2006) boundary correction for beta regression
+      solo_ratio_adj   = (solo_ratio        * (n_total - 1) + 0.5) / n_total,
+      ltr_identity_adj = (mean_LTR_identity * (n_total - 1) + 0.5) / n_total,
+      TE_density_adj   = (TE_density        * (n_total - 1) + 0.5) / n_total,
+      crm_prop_adj     = (crm_prop          * (n_total - 1) + 0.5) / n_total,
+      gypsy_prop_adj   = (gypsy_prop        * (n_total -1) + 0.5) / n_total
+    ) %>%
+    filter(
+      !is.na(solo_ratio),
+      !is.na(mean_LTR_identity),
+      !is.na(TE_density),
+      n_intact >= 5
+    )
+}
+
+chrom_full      <- aggregate_chrom(df_full)
+chrom_sensitive <- aggregate_chrom(df_sensitive)
+
+cat("Chromosomes (full):        ", nrow(chrom_full),      "\n")
+cat("Chromosomes (sensitivity): ", nrow(chrom_sensitive), "\n")
+```
+
+```{r inspect-chrom}
+chrom_full %>%
+  group_by(arch) %>%
+  summarise(
+    n_species         = n_distinct(Species),
+    n_chr             = n(),
+    mean_solo_ratio   = mean(solo_ratio,        na.rm = TRUE),
+    mean_ltr_identity = mean(mean_LTR_identity, na.rm = TRUE),
+    mean_TE_density   = mean(TE_density,        na.rm = TRUE),
+    .groups = "drop"
+  ) %>%
+  kable(digits = 4, caption = "Chromosome-level summary by architecture")
+```
+
+------------------------------------------------------------------------
+
+# Aggregate to window level
+
+Used for hypotheses tested at the window level (H1, H3).
+Keep distinct LTR-TE families separate to allow family-level effects in the models.
+
+
+```{r aggregate-window}
+
+aggregate_window <- function(df) {
+  
+  window_totals <- df %>%
+    group_by(Species, chr, bin_ID, chr_length, arch, 
+             Family, Ordo, Clade, Genus) %>%
+    summarise(
+      all_intact_count_in_window = sum(element_type == "intact"),
+      all_disrupted_count_in_window = sum(element_type == "partial"),
+      all_solo_count_in_window = sum(element_type == "solo_LTR"),
+      all_total = n(),
+      all_mean_LTR_identity_in_window = mean(LTR_identity[element_type == "intact"], na.rm = TRUE),
+      .groups = "drop"
+    ) %>%
+    mutate(
+      all_solo_intact_ratio_in_window = ifelse(all_intact_count_in_window + all_solo_count_in_window > 0,
+                        all_solo_count_in_window / (all_intact_count_in_window + all_solo_count_in_window),
+                        NA_real_),
+      all_TE_density_in_window = all_intact_count_in_window / (0.05*chr_length),  # 5% window size
+      log_chr_length = log10(chr_length / 1e6),
+      log_chr_length_c = log_chr_length - mean(log_chr_length, na.rm = TRUE),
+      
+      # Verkuilen adjustment
+      all_solo_intact_ratio_adj = ifelse(!is.na(all_solo_intact_ratio_in_window),
+                        (all_solo_intact_ratio_in_window * (all_total - 1) + 0.5) / all_total,
+                        NA_real_)
+  )
+  
+}
+
+window_sensitive <- aggregate_window(df_sensitive)
+window_full <- aggregate_window(df_full)
+cat("Windows included sensitive:", nrow(window_sensitive), "\n")
+cat("Windows included full:", nrow(window_full), "\n")
+
+```
+
+------------------------------------------------------------------------
+
+# Filter to element level
+
+TE_density_adj   = (TE_density        * (n_total - 1) + 0.5) / n_total,
+```{r filter-element}
+
+prep_element_data <- function(df, min_family_n = 100) {
+  out <- df %>%
+    filter(
+      element_type == "intact",
+      !is.na(LTR_identity),
+      !is.na(log_chr_length),
+      !is.na(arch),
+      !is.na(Class)
+    ) %>%
+    mutate(
+      LTRi_prop = (LTR_identity/100 * (LTR_length - 1) + 0.5) / LTR_length,
+      log_chr_length_c = log_chr_length - mean(log_chr_length, na.rm = TRUE),
+      log_LTR_length = log10(LTR_length + 1e-6)
+    )
+
+  cat("Intact elements:", nrow(out), "\n")
+  cat("TE families present:\n")
+  print(sort(table(out$Class), decreasing = TRUE))
+
+  family_counts <- out %>% count(Class) %>% filter(n >= min_family_n)
+  cat("\nFamilies with >=", min_family_n, "elements:", nrow(family_counts), "\n")
+
+  out <- out %>%
+    filter(Class %in% family_counts$Class) %>%
+    mutate(Class = droplevels(Class))
+
+  cat("Elements after family filter:", nrow(out), "\n")
+  out
+}
+
+element_full      <- prep_element_data(df_full)
+element_sensitive <- prep_element_data(df_sensitive)
+
+```
+
+
+
+
+
+------------------------------------------------------------------------
+# H1a: overall TE density
+
+```{r h1a_additive}
+h1a_additive <- glmmTMB(TE_density_adj ~ arch + log_chr_length_c +
+          (1 | Ordo/Family/Genus/Species),
+        family = beta_family(),
+        dispformula = ~arch,
+        data = chrom_sensitive)
+summary(h1a_additive)
+```
+
+```{r h1a_interaction}
+h1a_interaction <- glmmTMB(TE_density_adj ~ arch * log_chr_length_c +
+          (1 | Ordo/Family/Genus/Species),
+        family = beta_family(),
+        dispformula = ~arch,
+        data = chrom_sensitive)
+summary(h1a_interaction)
+```
+Additive model has better BIC.
+Architecture has no effect, chromosome size associated with increased TE abundance.
+
+Is there a difference on chrom_full?
+```{r h1a_full}
+h1a_full <- glmmTMB(TE_density_adj ~ arch + log_chr_length_c +
+          (1 | Ordo/Family/Genus/Species),
+        family = beta_family(),
+        dispformula = ~arch,
+        data = chrom_full)
+summary(h1a_full)
+```
+Nope.
+
+Now visualize the distribution
+
+```{r te_abundance_visualization}
+p_density <- chrom_sensitive %>%
+  ggplot(aes(x = log_chr_length, y = TE_density)) +
+  stat_density_2d(
+    aes(fill = arch, alpha = after_stat(level)),
+    geom = "polygon"
+  ) +
+  scale_fill_manual(values = c("monocentric" = "gray20",
+                               "holocentric" = "blue")) +
+  scale_alpha_continuous(range = c(0.05, 0.4)) +
+  labs(x = "log10(chromosome length)", y = "LTR-TE density",
+       fill = "Architecture") +
+  guides(alpha = "none") +
+  theme_bw() +
+  theme(text = element_text(family = "Arial"))
+
+p_points <- chrom_sensitive %>%
+  ggplot(aes(x = log_chr_length, y = TE_density)) +
+  geom_point(aes(shape = arch),
+             color = "black", size = 1.5) +
+  geom_point(aes(color = Family, shape = arch),
+             size = 1.2, alpha = 0.8) +
+  scale_color_manual(values = family_palette) +
+  scale_shape_manual(values = c("holocentric" = 17,
+                                "monocentric" = 16)) +
+  labs(x = "log10(chromosome length)", y = "LTR-TE density",
+       color = "Family", shape = "Architecture") +
+  theme_bw() +
+  theme(text = element_text(family = "Arial"))
+
+p_combined <- p_density + p_points +
+  plot_layout(guides = "collect") &
+  theme(legend.position = "bottom",
+        text = element_text(family = "Arial"))
+ggsave("../../data/figures/GLMM/te_density_vs_chr_size.svg", plot = p_combined,
+       width = 8, height = 5, device = svglite)
+p_combined
+
+```
+
+And export the effects estimation table
+
+```{r h1a_export}
+tidy(h1a_additive, effects = "fixed", conf.int = TRUE) |>
+write_csv("../../data/tables/glmm/h1a.csv")
+```
+
+------------------------------------------------------------------------
+
+# H1b: CRM proportions
+
+not enough elements in individual windows, calculate on chromosome level
+
+```{r h1b_additive}
+h1b_additive <- glmmTMB(crm_prop_adj ~ arch + log_chr_length_c +
+          (1 | Ordo/Family/Genus/Species),
+        family = beta_family(),
+        dispformula = ~arch,
+        data = chrom_sensitive)
+summary(h1b_additive)
+```
+
+```{r h1b_interaction}
+h1b_interaction <- glmmTMB(crm_prop_adj ~ arch * log_chr_length_c +
+          (1 | Ordo/Family/Genus/Species),
+        family = beta_family(),
+        dispformula = ~arch,
+        data = chrom_sensitive)
+summary(h1b_interaction)
+```
+Interaction is better.
+In monocentrics, CRM goes down with chr size.
+There is fewer CRM in holocentrics.
+
+```{r h1b_full}
+h1b_full <- glmmTMB(crm_prop_adj ~ arch * log_chr_length_c +
+          (1 | Ordo/Family/Genus/Species),
+        family = beta_family(),
+        dispformula = ~arch,
+        data = chrom_full)
+summary(h1b_full)
+```
+Same result for full dataset
+
+```{r CRM_abundance_visualization}
+p_density <- chrom_sensitive %>%
+  ggplot(aes(x = log_chr_length, y = crm_prop)) +
+  stat_density_2d(
+    aes(fill = arch, alpha = after_stat(level)),
+    geom = "polygon"
+  ) +
+  scale_fill_manual(values = c("monocentric" = "gray20",
+                               "holocentric" = "blue")) +
+  scale_alpha_continuous(range = c(0.05, 0.4)) +
+  labs(x = "log10(chromosome length)", y = "CRM proportion",
+       fill = "Architecture") +
+  guides(alpha = "none") +
+  theme_bw() +
+  theme(text = element_text(family = "Arial"))
+
+p_points <- chrom_sensitive %>%
+  ggplot(aes(x = log_chr_length, y = crm_prop)) +
+  geom_point(aes(shape = arch),
+             color = "black", size = 1.5) +
+  geom_point(aes(color = Family, shape = arch),
+             size = 1.2, alpha = 0.8) +
+  scale_color_manual(values = family_palette) +
+  scale_shape_manual(values = c("holocentric" = 17,
+                                "monocentric" = 16)) +
+  labs(x = "log10(chromosome length)", y = "CRM proportion",
+       color = "Family", shape = "Architecture") +
+  theme_bw() +
+  theme(text = element_text(family = "Arial"))
+
+p_combined <- p_density + p_points +
+  plot_layout(guides = "collect") &
+  theme(legend.position = "bottom",
+        text = element_text(family = "Arial"))
+ggsave("../../data/figures/GLMM/crmprop_vs_chr_size.svg", plot = p_combined,
+       width = 8, height = 5, device = svglite)
+p_combined
+
+```
+
+Export results
+```{r h1b_export}
+tidy(h1b_interaction, effects = "fixed", conf.int = TRUE) |>
+write_csv("../../data/tables/glmm/h1b.csv")
+```
+
+
+# H1c Gypsy proportion
+
+```{r h1c_additive}
+h1c_additive <- glmmTMB(gypsy_prop_adj ~ arch + log_chr_length_c +
+          (1 | Ordo/Family/Genus/Species),
+        family = beta_family(),
+        dispformula = ~arch,
+        data = chrom_sensitive)
+summary(h1c_additive)
+```
+
+```{r h1c_interaction}
+h1c_interaction <- glmmTMB(gypsy_prop_adj ~ arch * log_chr_length_c +
+          (1 | Ordo/Family/Genus/Species),
+        family = beta_family(),
+        dispformula = ~arch,
+        data = chrom_sensitive)
+summary(h1c_interaction)
+```
+Additive is better.
+The gypsy proportion goes up in larger chromosomes (both groups).
+No difference between mono and holocentrics.
+
+```{r h1c_full}
+h1c_full <- glmmTMB(gypsy_prop_adj ~ arch + log_chr_length_c +
+          (1 | Ordo/Family/Genus/Species),
+        family = beta_family(),
+        dispformula = ~arch,
+        data = chrom_full)
+summary(h1c_full)
+```
+```{r gypsy_abundance_visualization}
+p_density <- chrom_sensitive %>%
+  ggplot(aes(x = log_chr_length, y = gypsy_prop)) +
+  stat_density_2d(
+    aes(fill = arch, alpha = after_stat(level)),
+    geom = "polygon"
+  ) +
+  scale_fill_manual(values = c("monocentric" = "gray20",
+                               "holocentric" = "blue")) +
+  scale_alpha_continuous(range = c(0.05, 0.4)) +
+  labs(x = "log10(chromosome length)", y = "Ty3-gypsy proportion",
+       fill = "Architecture") +
+  guides(alpha = "none") +
+  theme_bw() +
+  theme(text = element_text(family = "Arial"))
+
+p_points <- chrom_sensitive %>%
+  ggplot(aes(x = log_chr_length, y = gypsy_prop)) +
+  geom_point(aes(shape = arch),
+             color = "black", size = 1.5) +
+  geom_point(aes(color = Family, shape = arch),
+             size = 1.2, alpha = 0.8) +
+  scale_color_manual(values = family_palette) +
+  scale_shape_manual(values = c("holocentric" = 17,
+                                "monocentric" = 16)) +
+  labs(x = "log10(chromosome length)", y = "Ty-3 gypsy proportion",
+       color = "Family", shape = "Architecture") +
+  theme_bw() +
+  theme(text = element_text(family = "Arial"))
+
+p_combined <- p_density + p_points +
+  plot_layout(guides = "collect") &
+  theme(legend.position = "bottom",
+        text = element_text(family = "Arial"))
+ggsave("../../data/figures/GLMM/gypsyprop_vs_chr_size.svg", plot = p_combined,
+       width = 8, height = 5, device = svglite)
+p_combined
+
+```
+
+
+------------------------------------------------------------------------
+# H2a: LTR identity
+
+without family
+
+```{r h2a_additive}
+h2a_additive <- glmmTMB(LTRi_prop ~ arch + log_chr_length_c +
+          (1 | Ordo/Family/Genus/Species),
+        family = beta_family(),
+        dispformula = ~arch,
+        data = element_sensitive)
+summary(h2a_additive)
+```
+
+
+```{r h2a_interaction}
+h2a_interaction <- glmmTMB(LTRi_prop ~ arch*log_chr_length_c +
+          (1 | Ordo/Family/Genus/Species),
+        family = beta_family(),
+        dispformula = ~arch,
+        data = element_sensitive)
+summary(h2a_interaction)
+```
+Interaction is better
+with family
+
+# H2b family as random 
+
+```{r h2b_interaction}
+
+h2b_interaction <- glmmTMB(LTRi_prop ~ arch * log_chr_length_c +
+          (1 | Ordo/Family/Genus/Species) + (1 | Class),
+        family = beta_family(),
+        dispformula = ~arch,
+        data = element_sensitive)
+
+summary(h2b_interaction)
+```
+with full dataset
+
+```{r h2b_full}
+
+
+h2b_full <- glmmTMB(LTRi_prop ~ arch * log_chr_length_c +
+          (1 | Ordo/Family/Genus/Species) + (1 | Class),
+        family = beta_family(),
+        dispformula = ~arch,
+        data = element_full)
+
+summary(h2b_full)
+```
+
+
+
+
+
+
+
+
+```{r h2b_visualization}
+p_density <- chrom_sensitive %>%
+  ggplot(aes(x = log_chr_length, y = mean_LTR_identity)) +
+  stat_density_2d(
+    aes(fill = arch, alpha = after_stat(level)),
+    geom = "polygon"
+  ) +
+  scale_fill_manual(values = c("monocentric" = "gray20",
+                               "holocentric" = "blue")) +
+  scale_alpha_continuous(range = c(0.05, 0.4)) +
+  labs(x = "log10(chromosome length)", y = "LTR identity (%)",
+       fill = "Architecture") +
+  guides(alpha = "none") +
+  theme_bw() +
+  theme(text = element_text(family = "Arial"))
+
+p_points <- chrom_sensitive %>%
+  ggplot(aes(x = log_chr_length, y = mean_LTR_identity)) +
+  geom_point(aes(shape = arch),
+             color = "black", size = 1.5) +
+  geom_point(aes(color = Family, shape = arch),
+             size = 1.2, alpha = 0.8) +
+  scale_color_manual(values = family_palette) +
+  scale_shape_manual(values = c("holocentric" = 17,
+                                "monocentric" = 16)) +
+  labs(x = "log10(chromosome length)", y = "LTR identity (%)",
+       color = "Family", shape = "Architecture") +
+  theme_bw() +
+  theme(text = element_text(family = "Arial"))
+
+p_combined <- p_density + p_points +
+  plot_layout(guides = "collect") &
+  theme(legend.position = "bottom",
+        text = element_text(family = "Arial"))
+ggsave("../../data/figures/GLMM/ltr_identity_vs_chr_size.svg", plot = p_combined,
+       width = 8, height = 5, device = svglite)
+p_combined
+
+```
+
+# H2c families differ in their LTR identity (interaction)
+effect of the family
+
+```{r}
+
+h2c_interaction <- glmmTMB(LTRi_prop ~ arch * log_chr_length_c + arch*TE_family +
+          (1 | Ordo/Family/Genus/Species),
+        family = beta_family(),
+        dispformula = ~arch,
+        data = element_sensitive)
+summary(h2c_interaction)
+```
+
+```{r}
+emm <- emmeans(h2c_interaction, ~ arch | TE_family, type = "response")
+
+emm_df <- as.data.frame(emm)
+
+# Calculate holo - mono difference per family
+family_diffs <- emm_df %>%
+  select(TE_family, arch, response) %>%
+  pivot_wider(names_from = arch, values_from = response) %>%
+  mutate(diff = holocentric - monocentric)
+
+# Join back and use diff for ordering
+emm_df <- emm_df %>%
+  left_join(family_diffs %>% select(TE_family, diff), by = "TE_family")
+
+ggplot(emm_df, aes(x = response, y = reorder(TE_family, diff),
+                    color = arch, shape = arch)) +
+  geom_point(size = 3) +
+  geom_errorbarh(aes(xmin = asymp.LCL, xmax = asymp.UCL), height = 0.2) +
+  scale_color_manual(values = c("monocentric" = "black", "holocentric" = "#0000fff5")) +
+  labs(x = "Estimated LTR identity (back-transformed)",
+       y = "TE Family",
+       color = "Architecture", shape = "Architecture",
+       title = "Estimated LTR identity by TE family and architecture",
+       caption = "EMMs at mean chromosome size; error bars = 95% CI") +
+  theme_bw() +
+  theme(legend.position = "bottom",
+        text = element_text(family = "Arial"))
+
+ggsave("../../data/figures/GLMM/ltr_identity_by_family_arch.svg", width = 4, height = 4, device = svglite)
+```
+
+
+-------------------------------------------------------------
+
+# H2d - the effect of LTR length
+
+```{r h2d_additive}
+h2d_additive <- glmmTMB(LTRi_prop ~ arch * log_chr_length_c + log_LTR_length +
+          (1 | Ordo/Family/Genus/Species),
+        family = beta_family(),
+        dispformula = ~arch,
+        data = element_full)
+summary(h2d_additive)
+
+```
+```{r h2d_with_family}
+h2d_additive_family <- glmmTMB(LTRi_prop ~ arch * log_chr_length_c + TE_family + arch:TE_family +
+               log_LTR_length + arch:log_LTR_length +
+               (1 | Ordo/Family/Genus/Species),
+               family = beta_family(),
+               dispformula = ~arch,
+               data = element_sensitive)
+summary(h2d_additive_family)
+```
+```{r length_plus_fam_emm}
+emm <- emmeans(h2d_additive_family, ~ arch | TE_family, type = "response")
+
+emm_df <- as.data.frame(emm)
+
+# Calculate holo - mono difference per family
+family_diffs <- emm_df %>%
+  select(TE_family, arch, response) %>%
+  pivot_wider(names_from = arch, values_from = response) %>%
+  mutate(diff = holocentric - monocentric)
+
+# Join back and use diff for ordering
+emm_df <- emm_df %>%
+  left_join(family_diffs %>% select(TE_family, diff), by = "TE_family")
+
+ggplot(emm_df, aes(x = response, y = reorder(TE_family, diff),
+                    color = arch, shape = arch)) +
+  geom_point(size = 3) +
+  geom_errorbarh(aes(xmin = asymp.LCL, xmax = asymp.UCL), height = 0.2) +
+  scale_color_manual(values = c("monocentric" = "black", "holocentric" = "#0000fff5")) +
+  labs(x = "Estimated LTR identity (back-transformed)",
+       y = "TE Family",
+       color = "Architecture", shape = "Architecture",
+       title = "Estimated LTR identity by TE family and architecture",
+       caption = "EMMs at mean chromosome size; error bars = 95% CI") +
+  theme_bw() +
+  theme(legend.position = "bottom",
+        text = element_text(family = "Arial"))
+ggsave("../../data/figures/GLMM/lengths_corrected_ltr_identity_by_family_arch.svg", width = 4, height = 4, device = svglite)
+```
+
+
+```{r}
+h2d_interaction <- glmmTMB(LTRi_prop ~ arch * log_chr_length_c + arch*log_LTR_length +
+          (1 | Ordo/Family/Genus/Species),
+        family = beta_family(),
+        dispformula = ~arch,
+        data = element_sensitive)
+summary(h2d_interaction)
+
+```
+
+
+```{r}
+element_full %>%
+  slice_sample(n=10000) %>%
+  ggplot(aes(x = log_LTR_length, y = LTRi_prop, color = arch)) +
+  geom_point(alpha = 0.1, size = 0.3) +
+  geom_smooth(method = "lm", se = TRUE) +
+  facet_wrap(~ TE_family) +
+  scale_color_manual(values = c("monocentric" = "gray30", "holocentric" = "blue")) +
+  labs(x = "log10(LTR length)", y = "LTR identity",
+       color = "Architecture") +
+  theme_bw() +
+  theme(text = element_text(family = "Arial"),
+        legend.position = "bottom")
+```
+
+```{r}
+element_full %>%
+  mutate(LTR_length_bin = cut(LTR_length, breaks = c(0, 100, 200, 500, 1000, 2000, Inf))) %>%
+  ggplot(aes(x = LTR_identity, fill = arch)) +
+  geom_histogram(position = "dodge", bins = 50) +
+  xlim(c(98,100)) +
+  facet_wrap(~ LTR_length_bin) +
+  theme_bw()
+```
+```{r}
+element_full %>%
+  ggplot(aes(x = arch, y = LTR_length, fill = arch)) +
+  geom_violin() +
+  geom_boxplot(width = 0.1, fill = "white", outlier.shape = NA) +
+  scale_fill_manual(values = c("monocentric" = "gray30", "holocentric" = "blue")) +
+  scale_y_log10() +
+  facet_wrap(~ TE_family) +
+  labs(x = "Architecture", y = "LTR length (bp, log scale)") +
+  theme_bw() +
+  theme(legend.position = "none",
+        text = element_text(family = "Arial"))
+ggsave("../../data/figures/GLMM/ltr_length_in_families.svg", width = 8, height = 8, device = svglite)
+
+```
+
+```{r}
+ltr_length_model_fam <- glmmTMB(log_LTR_length ~ arch * TE_family + 
+                                  (1 | Family/Genus/Species),
+                                family = gaussian(),
+                                data = element_full)
+summary(ltr_length_model_fam)
+```
+
+
+```{r}
+element_full %>%
+  group_by(TE_family) %>%
+  group_map(~ {
+    m <- glmmTMB(log_LTR_length ~ arch + (1 | Family/Genus/Species),
+                 family = gaussian(), data = .x)
+    broom.mixed::tidy(m, effects = "fixed") %>%
+      filter(term == "archholocentric") %>%
+      mutate(family = .y$TE_family)
+  }) %>%
+  bind_rows()
+```
+
+-------------------------------------------------------------
+
+# H3a - overall solo ratio
+
+
+```{r h3a_additive}
+
+h3a_additive <- glmmTMB(all_solo_intact_ratio_adj ~ arch + log_chr_length_c +
+          (1 | Ordo/Family/Genus/Species),
+        family = beta_family(),
+        dispformula = ~arch,
+        data = window_sensitive)
+
+summary(h3a_additive)
+```
+```{r h3a_interaction}
+h3a_interaction <- glmmTMB(all_solo_intact_ratio_adj ~ arch * log_chr_length_c +
+          (1 | Ordo/Family/Genus/Species),
+        family = beta_family(),
+        dispformula = ~arch,
+        data = window_sensitive)
+summary(h3a_interaction)
+```
+
+
+
+# H3b - solo ratio on chromosomal level
+```{r h3b_additive}
+h3b_additive <- glmmTMB(solo_ratio_adj ~ arch + log_chr_length_c +
+          (1 | Ordo/Family/Genus/Species),
+        family = beta_family(),
+        dispformula = ~arch,
+        data = chrom_sensitive)
+summary(h3b_additive)
+```
+
+```{r h3b_interaction}
+h3b_interaction <- glmmTMB(solo_ratio_adj ~ arch * log_chr_length_c +
+          (1 | Ordo/Family/Genus/Species),
+        family = beta_family(),
+        dispformula = ~arch,
+        data = chrom_sensitive)
+summary(h3b_interaction)
+```
+```{r save_h3b}
+
+tidy(h3b_interaction, effects = "fixed", conf.int = TRUE) |>
+  write_csv("../../data/tables/glmm/h3b_interaction.csv")
+```
+
+# solo ratio slope
+```{r solo_slope}
+slope <- chrom_sensitive %>%
+  group_by(Family, arch) %>%
+  filter(n() >= 10) %>%  # only groups with enough data
+  do(tidy(lm(solo_ratio ~ log_chr_length, data = .))) %>%
+  filter(term == "log_chr_length") %>%
+  select(Family, arch, estimate, std.error, p.value) %>%
+  arrange(arch, estimate)
+
+write_csv(slope, "../../data/tables/glmm/solo_family_slope.csv")
+slope
+
+```
+
+
+Export linear model results
+```{r export}
+
+model_summary <- function(model) {
+  tidy(model, effects = "fixed") %>%
+    mutate(
+      call = deparse1(model$call)
+    )
+}
+
+model_random <- function(model) {
+  tidy(model, effects = "ran_pars") %>%
+    mutate(
+      call = deparse1(model$call)
+    )
+}
+
+model_list <- list(
+  h1a_additive      = h1a_additive,
+  h1c_additive      = h1c_additive,
+  h1b_interaction   = h1b_interaction,
+  h2a_interaction   = h2a_interaction,
+  h2b_interaction   = h2b_interaction,
+  h2c_interaction   = h2c_interaction,
+  h2d_interaction   = h2d_interaction,
+  h3a_interaction   = h3a_interaction,
+  h3b_additive      = h3b_additive,
+  h3b_interaction   = h3b_interaction
+)
+
+results <- map_dfr(model_list, model_summary, .id = "model_name")
+random  <- map_dfr(model_list, model_random,  .id = "model_name")
+fit     <- map_dfr(model_list, glance,         .id = "model_name")
+
+write_csv(results, "../../data/tables/glmm/glmm_fixed_effects.csv")
+write_csv(random,  "../../data/tables/glmm/glmm_random_effects.csv")
+write_csv(fit,     "../../data/tables/glmm/glmm_fit_stats.csv")
+
+```
+

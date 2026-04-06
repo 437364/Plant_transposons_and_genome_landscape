@@ -1,0 +1,68 @@
+Order	Species	Chromosome number (n)	Assembly size (Mb)	Chromosome size (Mb)	Chromosomes in analysis	Assembly size in analysis (Mb)	Accession	Family	Centromere architecture	Excluded (-) or included (+) chr IDs	Gaps per chromosome	Gaps per Mb	BUSCO complete (%)	Short label
+1	Cuscuta_campestris	31	505	16.29	31	505	GCA_052055255.1	Convolvulaceae	monocentric	-	0.45	0.0	55	Cu. campestris
+2	Cuscuta_epithymum	7	513	73.29	7	513	GCA_965620575.1	Convolvulaceae	holocentric	-	33.43	0.46	54	Cu. epithymum
+3	Poa_supina	7	636	90.86	7	636	GCA_040143895.1	Poaceae	monocentric	-	51.14	0.55	96.20	Poa supina
+4	Poa_infirma	7	1125	160.71	7	1125	GCA_040144145.1	Poaceae	monocentric	-	20.29	0.12	97.10	Poa infirma
+5	Poa_chaixii	7	1289	184.14	7	1289	GCA_964215705.1	Poaceae	monocentric	(-) OZ173747.1	78.50	0.44	97.60	Poa chaixii
+6	Poa_annua	14	1777	126.93	14	1777	GCA_026929855.1	Poaceae	monocentric	-	11.57	0.09	98.40	Poa annua
+7	Hordeum_vulgare	7	4196	599.43	2	1138	GCF_904849725.1	Poaceae	monocentric	(+) NC_058518.1, NC_058520.1	21.00	0.01	97.80	H. vulgare
+8	Secale_cereale	7	6206	886.57	1	876	GCA_902687465.1	Poaceae	monocentric	(+) LR738713.1	20,503.00	3.3	97.80	Se. cereale
+9	Triticum_aestivum	21	14225	677.38	2	1450	GCF_018294505.1	Poaceae	monocentric	(+) NC_057794.1, NC_057801.1	8,007.50	0.94	99.30	Trit. aestivum
+10	Triticum_monococcum	7	5114	730.57	2	1302	GCA_034509565.1	Poaceae	monocentric	(+) CM067841.1, CM067844.1	71.50	0.02	97.90	Trit. monococcum
+11	Brachypodium_hybridum	15	535	35.67	15	535	GCA_036872515.1	Poaceae	monocentric	-	0.53	0.01	99.00	Br. hybridum
+12	Brachypodium_distachyon	5	271	54.20	5	271	GCF_000005505.3	Poaceae	monocentric	-	5.00	0.09	98.10	Br. distachyon
+13	Brachypodium_stacei	10	258	25.80	10	258	GCA_036872525.1	Poaceae	monocentric	-	0.30	0.01	98.00	Br. stacei
+14	Oryza_grandiglumis	24	871	36.29	24	871	GCA_048188845.1	Poaceae	monocentric	-	1.29	0.04	99.20	O. grandiglumis
+15	Oryza_punctata	12	419	34.92	12	419	GCA_000573905.2	Poaceae	monocentric	-	1.33	0.04	98.10	O. punctata
+16	Oryza_sativa	12	385	32.08	12	385	GCF_034140825.1	Poaceae	monocentric	-	0.00	0.00	98.60	O. sativa
+17	Oryza_rufipogon	12	418	34.83	12	418	GCA_037997075.1	Poaceae	monocentric	-	0.00	0.00	98.60	O. rufipogon
+18	Oryza_glaberrima	12	344	28.67	12	344	GCF_000147395.1	Poaceae	monocentric	-	01.08	0.04	98.50	O. glaberrima
+19	Oryza_barthii	12	344	28.67	12	344	GCA_000182155.4	Poaceae	monocentric	-	1.33	0.05	98.50	O. barthii
+20	Oryza_australiensis	12	881	73.42	12	881	GCA_048176765.1	Poaceae	monocentric	-	5.58	0.07	98.10	O. australiensis
+21	Oryza_coarctata	24	554	23.08	24	554	GCA_030770085.1	Poaceae	monocentric	-	0.54	0.02	98.70	O. coarctata
+22	Oryza_ridleyi	24	1202	50.08	24	1202	GCA_047772315.1	Poaceae	monocentric	-	0.04	0.00	99.40	O. ridleyi
+23	Oryza_longiglumis	24	1146	47.75	24	1146	GCA_048014755.1	Poaceae	monocentric	-	0.08	0.00	99.30	O. longiglumis
+24	Oryza_brachyantha	12	258	21.50	12	258	GCF_000231095.2	Poaceae	monocentric	-	1.17	0.05	98.60	O. brachyantha
+25	Oryza_meyeriana	12	789	65.75	12	789	GCA_047899645.1	Poaceae	monocentric	-	0.08	0.00	98.40	O. meyeriana
+26	Zoysia_sinica	20	312	15.60	20	312	GCA_041753855.1	Poaceae	monocentric	-	2.70	0.17	97.70	Z. sinica
+27	Zoysia_japonica	20	316	15.80	20	316	GCA_040438285.1	Poaceae	monocentric	-	5.00	0.31	97.50	Z. japonica
+28	Panicum_miliaceum	18	834	46.33	18	834	GCA_038442765.1	Poaceae	monocentric	-	0.00	0.00	98.80	Pa. miliaceum
+29	Luzula_pallescens	6	337	56.17	6	337	GCA_964274315.1	Juncaceae	holocentric	-	36.50	0.65	71.60	L. pallescens
+30	Luzula_sylvatica	6	430	71.67	6	430	GCA_946800325.1	Juncaceae	holocentric	-	24.67	0.26	72.20	L. sylvatica
+31	Juncus_squarrosus	20	318	15.90	20	318	GCA_965214595.1	Juncaceae	monocentric	-	8.35	0.52	72.60	J. squarrosus
+32	Juncus_effusus	21	239	11.38	21	239	GCA_027726005.1	Juncaceae	monocentric	-	0.14	0.01	73.90	J. effusus
+33	Cyperus_fuscus	18	221	12.28	18	221	GCA_964656925.1	Cyperaceae	holocentric	-	3.50	0.28	73.80	Cy. fuscus
+34	Cyperus_iria	68	461	6.78	68	461	GCA_042767885.1	Cyperaceae	holocentric	-	0.01	0.00	75.80	Cy. iria
+35	Schoenoplectus_tabernaemontani	21	505	24.05	21	505	GCA_037127355.1	Cyperaceae	holocentric	-	9.14	0.38	74.90	Sch. tabernaemontani
+36	Schoenoplectus_triqueter	21	573	27.29	21	573	GCA_964058795.1	Cyperaceae	holocentric	-	13.00	0.47	75.40	Sch. triqueter
+37	Schoenoplectus_lacustris	21	479	22.81	20	479	GCA_964200675.1	Cyperaceae	holocentric	-	13.75	0.57	75.60	Sch. lacustris
+38	Bolboschoenus_planiculmis	54	220	4.07	54	220	GCA_031770325.1	Cyperaceae	holocentric	-	0.37	0.08	75.60	Bo. planiculmis
+39	Eleocharis_quinqueflora	67	495	7.39	67	495	GCA_964058905.1	Cyperaceae	holocentric	-	8.82	1.19	74.90	El. quinqueflora
+40	Eleocharis_dulcis	111	493	4.44	111	493	GCA_040741935.1	Cyperaceae	holocentric	-	0.00	0.00	75.20	El. dulcis
+41	Carex_riparia	36	402	11.17	36	402	GCA_964374305.1	Cyperaceae	holocentric	-	5.53	0.47	75.80	Ca. riparia
+42	Carex_rostrata	35	376	10.74	35	376	GCA_964058835.2	Cyperaceae	holocentric	-	1.31	0.12	75.90	Ca. rostrata
+43	Carex_hirta	56	314	5.61	56	314	GCA_965112215.1	Cyperaceae	holocentric	-	4.59	0.77	75.40	Ca. hirta
+44	Carex_nigra	42	411	9.79	42	411	GCA_965278315.1	Cyperaceae	holocentric	(-) OZ256513.1	8.88	0.91	75.20	Ca. nigra
+45	Carex_elata	40	407	10.18	40	407	GCA_965260875.1	Cyperaceae	holocentric	-	9.10	0.88	75.40	Ca. elata
+46	Carex_littledalei	29	359	12.38	29	359	GCA_011114355.1	Cyperaceae	holocentric	-	10.62	0.82	71.40	Ca. littledalei
+47	Carex_depauperata	22	699	31.77	22	699	GCA_964197715.1	Cyperaceae	holocentric	-	12.82	0.40	75.30	Ca. depauperata
+48	Carex_sylvatica	29	362	12.48	29	362	GCA_964058815.1	Cyperaceae	holocentric	-	6.93	0.55	75.00	Ca. sylvatica
+49	Carex_acutiformis	39	388	9.95	39	388	GCA_964417155.1	Cyperaceae	holocentric	-	7.62	0.74	75.70	Ca. acutiformis
+50	Carex_caryophyllea	34	526	15.47	34	526	GCA_964339005.1	Cyperaceae	holocentric	-	9.38	0.60	75.40	Ca. caryophyllea
+51	Carex_pendula	31	362	11.68	31	362	GCA_964058885.1	Cyperaceae	holocentric	-	0.97	0.08	75.40	Ca. pendula
+52	Carex_extensa	30	308	10.27	30	308	GCA_964341605.1	Cyperaceae	holocentric	-	7.50	0.72	74.50	Ca. extensa
+53	Carex_distans	35	350	10.00	35	350	GCA_964659625.1	Cyperaceae	holocentric	-	32.89	3.22	74.00	Ca. distans
+54	Carex_divulsa	27	388	14.37	27	388	GCA_964058785.1	Cyperaceae	holocentric	-	7.59	0.53	75.30	Ca. divulsa
+55	Carex_arenaria	27	351	13.00	27	351	GCA_964058765.1	Cyperaceae	holocentric	-	6.22	0.48	75.30	Ca. arenaria
+56	Carex_echinata	29	378	13.03	29	378	GCA_965279795.1	Cyperaceae	holocentric	-	1.62	0.12	75.30	Ca. echinata
+57	Carex_myosuroides	29	400	13.79	29	400	GCA_028015225.1	Cyperaceae	holocentric	-	1.52	0.11	75.40	Ca. myosuroides
+58	Carex_laevigata	36	375	10.42	36	375	GCA_964214065.1	Cyperaceae	holocentric	-	29.39	2.81	75.00	Ca. laevigata
+59	Scirpus_sylvaticus	31	320	10.32	31	320	GCA_965151555.1	Cyperaceae	holocentric	-	6.10	0.59	76.30	Sci. sylvaticus
+60	Eriophorum_angustifolium	29	428	14.76	29	428	GCA_965282555.1	Cyperaceae	holocentric	-	6.66	0.43	75.60	Er. angustifolium
+61	Eriophorum_vaginatum	29	368	12.69	29	368	GCA_965200285.1	Cyperaceae	holocentric	-	36.93	2.79	75.50	Er. vaginatum
+62	Trichophorum_cespitosum	52	315	6.06	52	315	GCA_965178605.1	Cyperaceae	holocentric	-	02.06	0.34	75.90	Trich. cespitosum
+63	Rhynchospora_pubera	5	1472	294.40	5	1472	GCA_028095005.1	Cyperaceae	holocentric	-	242.80	0.71	77.50	R. pubera
+64	Rhynchospora_breviuscula	5	370	74.00	5	370	GCA_027562975.1	Cyperaceae	holocentric	-	27.20	0.33	75.40	R. breviuscula
+65	Rhynchospora_tenuis	2	350	175.00	2	350	GCA_027725995.1	Cyperaceae	holocentric	-	13.00	0.07	75.30	R. tenuis
+66	Chamaelirium_luteum	12	745	62.08	22	723	GCA_964656255.1	Melanthiaceae	monocentric	(+) CAZZRC010000001.1 - CAZZRC010000022.1	22.23	0.66	78.6	Cha. luteum
+67	Chionographis_japonica	12	1090	90.83	12	1090	GCA_947650365.1	Melanthiaceae	holocentric	-	69.67	0.56	80.20	Chi. japonica

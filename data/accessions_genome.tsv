@@ -1,0 +1,68 @@
+Sample_id	Chromosome_number	Assembly_size(1C, Mb)	FTP_link
+Carex_acutiformis	39	400	https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/964/417/155/GCA 964417155.1 lpCarAcui1.hap1.1
+Triticum_monococcum	7	6076	https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/034/509/565/GCA 034509565.1 PI306540 Tmono
+Triticum_aestivum	21	16954	https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/018/294/505/GCF 018294505.1 IWGSC CS RefSeq v2.1
+Rhynchospora_breviuscula	5	415	https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/027/562/975/GCA 027562975.1 MPIPZ rhyBre1m 1.0
+Luzula_sylvatica	6	559	https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/946/800/325/GCA 946800325.1 lpLuzSylv1.1
+Oryza_sativa	12	490	https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/034/140/825/GCF 034140825.1 ASM3414082v1
+Luzula_pallescens	6	338	https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/964/274/315/GCA 964274315.1 lpLuzPall1.1
+Eleocharis_quinqueflora	67	497	https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/964/058/905/GCA 964058905.1 lpEleQuin1.1
+Rhynchospora_tenuis	2	398	https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/027/725/995/GCA 027725995.1 MPIPZ rhyTen1m 1
+Rhynchospora_pubera	5	1700	https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/028/095/005/GCA 028095005.1 MPIPZ rhyPub2m 2.0
+Carex_myosuroides	29	413	https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/028/015/225/GCA 028015225.1 CAF CaMyos 1.0
+Carex_littledalei	29	374	https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/011/114/355/GCA 011114355.1 ASM1111435v1
+Carex_pendula	31	362	https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/964/058/885/GCA 964058885.1 lpCarPend1.1
+Carex_rostrata	35	381	https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/964/058/835/GCA 964058835.2 lpCarRost1.2
+Carex_depauperata	22	703	https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/964/197/715/GCA 964197715.1 lpCarDepa1.1
+Carex_arenaria	27	352	https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/964/058/765/GCA 964058765.1 lpCarAren1.1
+Carex_divulsa	27	388	https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/964/058/785/GCA 964058785.1 lpCarDivu1.1
+Carex_riparia	36	419	https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/964/374/305/GCA 964374305.1 lpCarRipa1.hap1.1
+Carex_caryophyllea	34	528	https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/964/339/005/GCA 964339005.1 lpCarCary1.hap1.1
+Carex_sylvatica	29	363	https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/964/058/815/GCA 964058815.1 lpCarSylv1.1
+Carex_hirta	56	335	https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/965/112/215/GCA 965112215.1 lpCarHirt1.hap1.1
+Carex_extensa	30	312	https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/964/341/605/GCA 964341605.1 lpCarExte1.hap1.1
+Carex_laevigata	36	377	https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/964/214/065/GCA 964214065.1 lpCarLaev1.1
+Carex_distans	35	357	https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/964/659/625/GCA 964659625.1 lpCarDist1.hap1.1
+Juncus_effusus	21	258	https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/027/726/005/GCA 027726005.1 MPIPZ junEff1m 1
+Cyperus_iria	68	463	https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/042/767/885/GCA 042767885.1 ASM4276788v1
+Cyperus_fuscus	18	228	https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/964/656/925/GCA 964656925.1 lpCypFusc1.hap1.1
+Bolboschoenus_planiculmis	54	238	https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/031/770/325/GCA 031770325.1 CAF BolPas 1.0
+Brachypodium_hybridum	15	535	https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/036/872/515/GCA 036872515.1 ASM3687251v1
+Brachypodium_stacei	10	259	https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/036/872/525/GCA 036872525.1 ASM3687252v1
+Brachypodium_distachyon	5	272	https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/005/505/GCF 000005505.3 Brachypodium distachyon v3.0
+Chionographis_japonica	12	1500	https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/947/650/365/GCA 947650365.1 Cjaponica Koshiki v1.0
+Hordeum_vulgare	7	4200	https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/904/849/725/GCF 904849725.1 MorexV3 pseudomolecules assembly
+Secale_cereale	8	6700	https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/902/687/465/GCA 902687465.1 Rye Lo7 2018 v1p1p1
+Zoysia_sinica	20	313	https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/041/753/855/GCA 041753855.1 CNU Zsg 1.0
+Poa_supina	7	648	https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/040/143/895/GCA 040143895.1 PSU Psup 1
+Panicum_miliaceum	18	835	https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/038/442/765/GCA 038442765.1 ASM3844276v1
+Zoysia_japonica	20	326	https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/040/438/285/GCA 040438285.1 BJFU zoysia2.1
+Oryza_punctata	12	422	https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/573/905/GCA 000573905.2 OpunRS2
+Oryza_rufipogon	12	419	https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/037/997/075/GCA_037997075.1_ASM3799707v1
+Oryza_meyeriana	12	789	https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/047/899/645/GCA_047899645.1_ASM4789964v1
+Oryza_australiensis	12	946	https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/048/176/765/GCA_048176765.1_ASM4817676v1
+Oryza_barthii	12	348	https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/182/155/GCA_000182155.4_ObarRS3
+Oryza_brachyantha	12	263	https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/231/095/GCF_000231095.2_ObraRS2
+Oryza_coarctata	24	573	https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/030/770/085/GCA_030770085.1_ASM3077008v1
+Oryza_glaberrima	12	347	https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/147/395/GCF_000147395.1_OglaRS2
+Oryza_grandiglumis	24	874	https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/048/188/845/GCA_048188845.1_Oryza_grandiglumis_Doell_1.0_genome
+Oryza_longiglumis	24	1147	https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/048/014/755/GCA_048014755.1_ASM4801475v1
+Oryza_ridleyi	24	1203	https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/047/772/315/GCA_047772315.1_O_ridleyi
+Poa_annua	14	1780	https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/026/929/855/GCA_026929855.1_FRR_PoAnn_1.0
+Poa_infirma	7	1152	https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/040/144/145/GCA_040144145.1_PSU_Pinf_1
+Poa_chaixii	8	1423	https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/964/215/705/GCA_964215705.1_lpPoaChai1.hap1.1
+Juncus_squarrosus	20	319	https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/965/214/595/GCA_965214595.1_lpJunSqua1.hap1.1
+Schoenoplectus_tabernaemontani	21	508	https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/037/127/355/GCA_037127355.1_CAF_SchTab_1.0
+Carex_echinata	29	379	https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/965/279/795/GCA_965279795.1_lpCarEchi2.hap1.1
+Carex_elata	40	415	https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/965/260/875/GCA_965260875.1_lpCarElat1.hap1.1
+Carex_nigra	43	418	https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/965/278/315/GCA_965278315.1_lpCarNigr3.hap1.1
+Eleocharis_dulcis	111	493	https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/040/741/935/GCA_040741935.1_ASM4074193v1
+Eriophorum_angustifolium	29	447	https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/965/282/555/GCA_965282555.1_lpEriAngu1.1
+Eriophorum_vaginatum	29	384	https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/965/200/285/GCA_965200285.1_lpEriVagi1.hap2.1
+Scirpus_sylvaticus	31	321	https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/965/151/555/GCA_965151555.1_lpSciSylv1.hap1.1
+Schoenoplectus_lacustris	20	481	https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/964/200/675/GCA_964200675.1_lpSchLacu1.1
+Schoenoplectus_triqueter	21	580	https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/964/058/795/GCA_964058795.1_lpSchTriq1.1
+Trichophorum_cespitosum	52	318	https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/965/178/605/GCA_965178605.1_lpTriCesp1.1
+Chamaelirium_luteum	12	745	https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/964/656/255/GCA_964656255.1_Chamaelirium_luteum_scaffolds_v3
+Cuscuta_campestris	31	505	https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/052/055/255/GCA_052055255.1_Cuca_doddi_1.0
+Cuscuta_epithymum	7	513	https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/965/620/575/GCA_965620575.1_daCusEpit1.1
