@@ -20,7 +20,7 @@ The central question is whether holocentric chromosomes — which lack localized
 ├── data/                           # Metadata and small reference files
 │   ├── metadata.tsv                # Species, accessions, centromere architecture, QC metrics
 │   ├── accessions_genome.tsv       # NCBI FTP links for genome downloads
-│   └── pruned_tree.tre             # Pruned angiosperm phylogeny (68 species)
+│   └── pruned_tree.tre             # Pruned angiosperm phylogeny
 │
 ├── transposon_annotation/          # TE detection and annotation pipeline
 │   ├── rules/                      # Snakemake rules (numbered by execution order)
@@ -31,7 +31,7 @@ The central question is whether holocentric chromosomes — which lack localized
 │   └── notebooks/                  # Clustering of TE density, LTR identity, and solo ratio profiles
 │
 ├── glmm_analysis/                  # Generalized linear mixed models
-│   └── glmm_analysis_v2.md        # R analysis (rendered from .Rmd) with full results
+│   └── glmm_analysis_v2.md         # R analysis (rendered from .Rmd) with full results
 │
 ├── epigenetic_data/                # ChIP-seq and methylation analysis (Lsyl vs Jeff)
 │   ├── notebooks/                  # Correlation matrices, density comparisons
